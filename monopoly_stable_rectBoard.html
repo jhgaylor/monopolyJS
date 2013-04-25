@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <link href='http://fonts.googleapis.com/css?family=Sunshiney' rel='stylesheet' type='text/css'>
+        <link href='./css/styles.css' rel='stylesheet' type='text/css'>
+        <title>Monopoly?</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="./js/game.js"></script>
+        
+        <script>
+            var context;
+            var canvas;
+
+            function Square(options) {
+                this.type = options.type;
+                this.name = options.name;
+                this.color = options.color;  
+            };
+
+            var board = {
+                square_width: 70,
+                square_height: 120,
+                squares: [
+                    new Square({type:"corner", name:"Go", color: "#eee" }),
+                    new Square({type:"property", name:"mediterranean Avenue", color: "purple" }),
+                    new Square({type:"chest", name:"Chest1", color: "yellow" }),
+                    new Square({type:"property", name:"baltic Avenue", color: "purple" }),
+                    new Square({type:"tax", name:"Income Tax", color: "brown" }),
+                    new Square({type:"railroad", name:"reading railroad", color: "#444" }),
+                    new Square({type:"property", name:"oriental Avenue", color: "teal" }),
+                    new Square({type:"chance", name:"Chance1", color: "maroon" }),
+                    new Square({type:"property", name:"vermont Avenue", color: "teal" }),
+                    new Square({type:"property", name:"connecticut Avenue", color: "teal" }),
+                    
+                    new Square({type:"corner", name:"Just Visiting", color: "#eee" }),
+                    new Square({type:"property", name:"St. Charles Place", color: "magenta" }),
+                    new Square({type:"utility", name:"Electric Company", color: "lime" }),
+                    new Square({type:"property", name:"States Avenue", color: "magenta" }),
+                    new Square({type:"property", name:"Virginia Avenue", color: "magenta" }),
+                    new Square({type:"railroad", name:"reading railroad", color: "#444" }),
+                    new Square({type:"property", name:"St. James Place", color: "orange" }),
+                    new Square({type:"chest", name:"Chest2", color: "yellow" }),
+                    new Square({type:"property", name:"Tennessee Avenue", color: "orange" }),
+                    new Square({type:"property", name:"New York Avenue", color: "orange" }),
+                    
+                    new Square({type:"corner", name:"Free Parking", color: "#eee" }),
+                    new Square({type:"property", name:"Kentucky Avenue", color: "red" }),
+                    new Square({type:"chance", name:"Chance2", color: "maroon" }),
+                    new Square({type:"property", name:"Indiana Avenue", color: "red" }),
+                    new Square({type:"property", name:"Illinois Avenue", color: "red" }),
+                    new Square({type:"railroad", name:"reading railroad", color: "#444" }),
+                    new Square({type:"property", name:"Atlantic Avenue", color: "yellow" }),
+                    new Square({type:"property", name:"Ventnor Avenue", color: "yellow" }),
+                    new Square({type:"utility", name:"Water Works", color: "lime" }),
+                    new Square({type:"property", name:"Marvin Gardens", color: "yellow" }),
+                    
+                    new Square({type:"corner", name:"Go to Jail", color: "#eee" }),
+                    new Square({type:"property", name:"Pacific Avenue", color: "green" }),
+                    new Square({type:"property", name:"North Carolina Avenue", color: "green" }),
+                    new Square({type:"chest", name:"Chest3", color: "yellow" }),
+                    new Square({type:"property", name:"Pennsylvania Avenue", color: "green" }),
+                    new Square({type:"railroad", name:"Shortline", color: "#444" }),
+                    new Square({type:"chance", name:"Chance3", color: "maroon" }),
+                    new Square({type:"property", name:"Park Place", color: "blue" }),
+                    new Square({type:"tax", name:"Luxury Tax", color: "brown" }),
+                    new Square({type:"property", name:"Boardwalk", color: "blue" }),
+                ]
+            };
+
+            $(function() {
+                canvas = $('#canvas')[0];
+                canvas.height = 2*board.square_height+9*board.square_width;
+                canvas.width = canvas.height;
+                context = canvas.getContext('2d');
+                
+                // drawGrid(context);
+                // drawText(context)
+                drawBoard(context);
+            });
+
+            function drawBoard(context){
+                context.save()
+                var extra = Math.abs(board.square_height - board.square_width)
+                for(var i=0; i<40; i++){
+                    context.save()
+                    //context.rotate(Math.PI);
+                    var square = board.squares[i];
+                    var square_width = board.square_width
+                    var square_height = board.square_height
+                    
+                    if(Math.floor(i/10) == 0){
+                        var x = canvas.width-((i+1)%11)*square_width-extra;
+                        var y = canvas.height-square_height;    
+                    }
+                    else if(Math.floor(i/10) == 1){
+                        context.translate(square_height,0)
+                        context.rotate(Math.PI/2)
+                        //when rotating 90degs, swap x/y
+                        var y = 0;
+                        var x = canvas.width-(((i+1)%11)+1)*square_width-extra;    
+                    }
+
+                    else if(Math.floor(i/10) == 2){
+                        context.translate(canvas.width-square_width,square_height)
+                        context.rotate(Math.PI)
+                        var x = canvas.width-((i%10)+2)*square_width-extra;
+                        var y = 0;
+                    }
+                    else if(Math.floor(i/10) == 3){
+                        context.translate(canvas.height-square_height,canvas.width-square_width)
+                        context.rotate(1.5*Math.PI)
+                        //when rotating 90degs, swap x/y
+                        var x = canvas.width-((i%10)+2)*square_width-extra;
+                        var y = 0;
+                    }
+                    console.log(square.name)
+                    console.log("X: "+ x)
+                    console.log("Y: "+ y)
+                    
+                    if(square.type=="corner"){
+                        if(square_height > square_width){
+                            square_width += extra;
+                        } else {
+                            square_height += extra
+                        }
+                     
+                    }
+
+                    context.fillStyle = square.color;
+                    context.strokeRect(x, y, square_width, square_height)
+                    context.fillRect(x, y, square_width, square_height)
+                    context.strokeText(square.name.slice(0,8), x,y+square_height )
+                    if(square.type=="corner"){
+                        
+                        context.save()
+                        context.translate(x,y)
+                        context.rotate(1.5*Math.PI)
+                        context.strokeText(square.name.slice(0,8), -square_width,square_height)//-square_width,square_height )
+                        context.restore()
+                    }
+                    
+                    context.restore()
+                }
+                context.restore()
+            }
+
+            $(window).load(function () {
+                var spaceship = $('#spaceship')[0];
+                // context.drawImage(spaceship, 100, 100);
+                // context.drawImage(spaceship, 100, 150, 100, 25);
+                // context.drawImage(spaceship, 0,0,60,50,100,200,60,50);
+            });
+
+            function drawText(context){
+                context.font ='30pt Sunshiney';
+                context.strokeStyle = "red";
+                context.fillText("grars", 50,50);
+                context.strokeText("PWN", 50,100);
+                context.fillText("OREOS", 50,150);
+            }
+
+            function drawGrid(context){
+                var width = board.square_width;
+                var height = board.square_height;
+                for(var y=0; y<canvas.height; y+=height){
+                    for(var x=0; x<canvas.width; x+=width){
+                        context.strokeRect(x,y,width,height);
+                        context.fillText("("+x+","+y+")", x+8,y+board.square_height*.5 )
+                    }
+                }   
+            }
+        </script>
+    </head>
+    <body style="font-family: Sunshiney;">    
+        <style type="text/css">
+            canvas {
+                border:1px solid black;
+            }
+
+            .hide {
+                display:none;
+            }
+           
+        </style>
+        
+        <canvas id="canvas" width="740" height="740"> 
+            Your browser does not support the HTML5 Canvas feature. This game uses new HTML5 features and will only work on the latest versions of Firefox, Safari or Chrome (and maybe Internet Explorer 9).         
+        </canvas>   
+        <img src="../game/spaceship.png" id="spaceship" class="hide" />
+    </body>
+</html>
